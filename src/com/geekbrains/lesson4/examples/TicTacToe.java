@@ -15,24 +15,38 @@ public class TicTacToe {
     public static void main(String[] args) {
         initMap();
         printMap();
-        humanTurn();
 
-        if (isWin(DOT_X)) {
-            System.out.println("Человек победил!");
+        while (true) {
+            humanTurn();
+            printMap();
+
+            if (isWin(DOT_X)) {
+                System.out.println("Человек победил!");
+                break;
+            }
+            if (isDraw()) {
+                break;
+            }
+
+            computerTurn();
+            printMap();
+
+            if (isWin(DOT_O)) {
+                System.out.println("Компьютер победил!");
+                break;
+            }
+            if (isDraw()) {
+                break;
+            }
         }
+    }
+
+    private static boolean isDraw() {
         if (isMapFull()) {
             System.out.println("Ничья!");
+            return true;
         }
-        printMap();
-
-        computerTurn();
-        if (isWin(DOT_O)) {
-            System.out.println("Компьютер победил!");
-        }
-        if (isMapFull()) {
-            System.out.println("Ничья!");
-        }
-        printMap();
+        return false;
     }
 
     private static void humanTurn() {
