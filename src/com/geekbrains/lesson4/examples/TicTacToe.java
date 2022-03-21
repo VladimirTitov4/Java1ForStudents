@@ -6,11 +6,12 @@ import java.util.Scanner;
 
 public class TicTacToe {
 
-    private static final int SIZE = 3;
+    private static final int SIZE = 5;
     private static final char DOT_X = 'X';
     private static final char DOT_O = 'O';
     private static final char DOT_EMPTY = '•';
-    private static final char[][] MAP = new char[SIZE][SIZE];
+    private static final int DOTS_TO_WIN = 4;
+    private static final char[][] map = new char[SIZE][SIZE];
 
     public static void main(String[] args) {
         initMap();
@@ -61,7 +62,7 @@ public class TicTacToe {
 
             if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) {
                 System.out.println("Данные введены некорректно");
-            } else if (MAP[x][y] != DOT_EMPTY) {
+            } else if (map[x][y] != DOT_EMPTY) {
                 System.out.println("Клетка уже занята");
             } else {
                 break;
@@ -69,28 +70,57 @@ public class TicTacToe {
 
         } while (true);
 
-        MAP[x][y] = DOT_X;
+        map[x][y] = DOT_X;
     }
 
     private static boolean isWin(char symbol) {
-        if (MAP[0][0] == symbol && MAP[0][1] == symbol && MAP[0][2] == symbol) return true; // проверили строки
-        if (MAP[1][0] == symbol && MAP[1][1] == symbol && MAP[1][2] == symbol) return true; // проверили строки
-        if (MAP[2][0] == symbol && MAP[2][1] == symbol && MAP[2][2] == symbol) return true; // проверили строки
+        if (checkRowsAndColumns(symbol)) {
+            return true;
+        } else {
+            return checkDiagonals(symbol);
+        }
+    }
 
-        if (MAP[0][0] == symbol && MAP[1][0] == symbol && MAP[2][0] == symbol) return true; // проверили столбцы
-        if (MAP[0][1] == symbol && MAP[1][1] == symbol && MAP[2][1] == symbol) return true; // проверили столбцы
-        if (MAP[0][2] == symbol && MAP[1][2] == symbol && MAP[2][2] == symbol) return true; // проверили столбцы
+    private static boolean checkDiagonals(char symbol) {
+        int mainDiagonalCounter = 0;
+        int sideDiagonalCounter = 0;
+        for (int i = 0; i < SIZE; i++) {
+            if (map[i][i] == symbol) {
+                mainDiagonalCounter++;
+            }
+            if (map[i][map.length - 1 - i] == symbol) {
+                sideDiagonalCounter++;
+            }
+            if (mainDiagonalCounter == DOTS_TO_WIN || sideDiagonalCounter == DOTS_TO_WIN) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-        if (MAP[0][0] == symbol && MAP[1][1] == symbol && MAP[2][2] == symbol) return true; // проверили диагональ
-        if (MAP[0][2] == symbol && MAP[1][1] == symbol && MAP[2][0] == symbol) return true; // проверили диагональ
-
+    private static boolean checkRowsAndColumns(char symbol) {
+        for (int i = 0; i < SIZE; i++) {
+            int rowCounter = 0;
+            int colCounter = 0;
+            for (int j = 0; j < SIZE; j++) {
+                rowCounter = map[i][j] == symbol ? rowCounter + 1 : 0;
+                if (map[j][i] == symbol) {
+                    colCounter = colCounter + 1;
+                } else {
+                    colCounter = 0;
+                }
+                if (rowCounter == DOTS_TO_WIN || colCounter == DOTS_TO_WIN) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
     private static boolean isMapFull() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (MAP[i][j] == DOT_EMPTY) {
+                if (map[i][j] == DOT_EMPTY) {
                     return false; // когда найдена пустая ячейка, значит можно ещё ходить.
                 }
             }
@@ -99,6 +129,20 @@ public class TicTacToe {
     }
 
     private static void computerTurn() {
+        int[] cell = getNextCellToWin(DOT_O);
+        if (cell == null) {
+            cell = getNextCellToWin(DOT_X);
+            if (cell == null) {
+                cell = getRandomEmptyCell();
+            }
+        }
+        int x = cell[0];
+        int y = cell[1];
+
+        map[x][y] = DOT_O;
+    }
+
+    private static int[] getRandomEmptyCell() {
         int x;
         int y;
         Random random = new Random();
@@ -106,15 +150,33 @@ public class TicTacToe {
         do {
             x = random.nextInt(SIZE); // SIZE не включительно
             y = random.nextInt(SIZE);
-            System.out.println("Компьютер подобрал координаты " + x + " " + y);
-        } while (MAP[x][y] != DOT_EMPTY);
+        } while (map[x][y] != DOT_EMPTY);
 
-        MAP[x][y] = DOT_O;
+        return new int[]{x, y};
     }
+
+    private static int[] getNextCellToWin(char symbol) {
+        for (int x = 0; x < SIZE; x++) {
+            for (int y = 0; y < SIZE; y++) {
+                if (map[x][y] == DOT_EMPTY && isGameMoveWinning(x, y, symbol)) {
+                    return new int[]{x, y};
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean isGameMoveWinning(int x, int y, char symbol) {
+        map[x][y] = symbol;
+        boolean result = isWin(symbol);
+        map[x][y] = DOT_EMPTY;
+        return result;
+    }
+
 
     private static void initMap() {
         for (int i = 0; i < SIZE; i++) {
-            Arrays.fill(MAP[i], DOT_EMPTY);
+            Arrays.fill(map[i], DOT_EMPTY);
         }
     }
 
@@ -138,7 +200,7 @@ public class TicTacToe {
         for (int i = 0; i < SIZE; i++) {
             System.out.print((i + 1) + " ");
             for (int j = 0; j < SIZE; j++) {
-                System.out.print(MAP[i][j] + " ");
+                System.out.print(map[i][j] + " ");
             }
             System.out.println();
         }

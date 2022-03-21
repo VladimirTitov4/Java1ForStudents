@@ -1,5 +1,6 @@
 package com.geekbrains.lesson5.examples;
 
+
 public class Cat {
 
     private String name;
