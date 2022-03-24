@@ -1,6 +1,6 @@
 package com.geekbrains.lesson6.examples;
 
-public class Test61 {
+public class PolymorphismExample {
 
     public static void main(String[] args) {
         Cat cat = new Cat("Max", "white", 3);
