@@ -23,23 +23,23 @@ public class CounterApp extends JFrame {
 
         JButton incrementButton = new JButton(">");
         add(incrementButton, BorderLayout.LINE_END);
-        incrementButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                counter++;
-                refreshCounterView(counterView);
-            }
-        });
-
         JButton decrementButton = new JButton("<");
         add(decrementButton, BorderLayout.LINE_START);
-        decrementButton.addActionListener(new ActionListener() {
+
+        ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                counter--;
+                if (e.getSource() == incrementButton) {
+                    counter++;
+                } else if (e.getSource() == decrementButton) {
+                    counter--;
+                }
                 refreshCounterView(counterView);
             }
-        });
+        };
+
+        decrementButton.addActionListener(actionListener);
+        incrementButton.addActionListener(actionListener);
 
         setVisible(true);
     }
